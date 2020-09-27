@@ -8,8 +8,8 @@ import (
 func Test_getBit(t *testing.T) {
 	var bitTests = []struct {
 		a   []byte
-		n   uint8 //
-		set bool  // expected result
+		n   int
+		set bool
 	}{
 		{[]byte{0x55}, 0, false},
 		{[]byte{0x55}, 1, true},
@@ -19,6 +19,7 @@ func Test_getBit(t *testing.T) {
 		{[]byte{0x55}, 5, true},
 		{[]byte{0x55}, 6, false},
 		{[]byte{0x55}, 7, true},
+		{[]byte{0x55}, 87, false},
 		{[]byte{0xaa, 0x55, 0xaa}, 16, true},
 		{[]byte{0xaa, 0x55, 0xaa}, 17, false},
 		{[]byte{0xaa, 0x55, 0xaa}, 18, true},
@@ -41,8 +42,8 @@ func Test_getBit(t *testing.T) {
 func Test_setBit(t *testing.T) {
 	var bitTests = []struct {
 		a      []byte
-		n      uint8  //
-		result []byte // expected result
+		n      int
+		result []byte
 	}{
 		{[]byte{0x00}, 0, []byte{0x80}},
 		{[]byte{0x00}, 1, []byte{0x40}},
@@ -78,8 +79,8 @@ func Test_setBit(t *testing.T) {
 func Test_clearBit(t *testing.T) {
 	var bitTests = []struct {
 		a      []byte
-		n      uint8  //
-		result []byte // expected result
+		n      int
+		result []byte
 	}{
 		{[]byte{0xFF}, 0, []byte{0x7f}},
 		{[]byte{0xFF}, 1, []byte{0xbf}},
