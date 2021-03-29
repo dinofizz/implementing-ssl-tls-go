@@ -272,7 +272,6 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 			desBlockOperate(inputBlock[:], output[outputStart:(outputStart+DES_BLOCK_SIZE)], key, decrypt)
 			xor(output[outputStart:(outputStart+DES_BLOCK_SIZE)], iv, DES_BLOCK_SIZE)
 			copy(iv[:], input[inputStart:(inputStart+DES_BLOCK_SIZE)])
-
 		}
 		inputStart += DES_BLOCK_SIZE
 		outputStart += DES_BLOCK_SIZE

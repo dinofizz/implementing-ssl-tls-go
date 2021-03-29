@@ -22,7 +22,7 @@ func main() {
 
 	des.DesEncrypt(input, output, iv, key)
 	for _, c := range output {
-		fmt.Printf("%x", c)
+		fmt.Printf("%.02x", c)
 	}
 	fmt.Println()
 }
