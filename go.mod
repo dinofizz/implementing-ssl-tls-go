@@ -1,4 +1,4 @@
-module implssl
+module "github.com/dinofizz/impl-tsl-go"
 
 go 1.14
 
