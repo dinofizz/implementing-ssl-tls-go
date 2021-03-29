@@ -169,8 +169,8 @@ func ror(target []byte) {
 	target[3] = ((target[3]>>1)|
 		((target[2]&0x01)<<7))&invertByte(0x08) | carryRight
 
-	target[2] = (target[2] >> 1) | ((target[5] & 0x01) << 7)
-	target[1] = (target[1] >> 1) | ((target[6] & 0x01) << 7)
+	target[2] = (target[2] >> 1) | ((target[1] & 0x01) << 7)
+	target[1] = (target[1] >> 1) | ((target[0] & 0x01) << 7)
 	target[0] = (target[0] >> 1) | carryLeft
 }
 
@@ -279,8 +279,8 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 	}
 }
 
-func desDecrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte) {
-	desOperate(plaintext, iv, ciphertext, key, true)
+func DesDecrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte) {
+	desOperate(plaintext, ciphertext, iv, key, true)
 }
 
 func DesEncrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte) {
