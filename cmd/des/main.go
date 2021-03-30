@@ -26,11 +26,16 @@ func main() {
 
 	output := make([]byte, len(input))
 
+	triplicate := false
+	if len(key) == 24 {
+		triplicate = true
+	}
+
 	if args[1] == "-e" {
-		des.DesEncrypt(input, output, iv, key)
+		des.DesEncrypt(input, output, iv, key, triplicate)
 		fmt.Println(hex.HexDisplay(output))
 	} else if args[1] == "-d" {
-		des.DesDecrypt(input, output, iv, key)
+		des.DesDecrypt(input, output, iv, key, triplicate)
 		fmt.Println(hex.HexDisplay(output))
 	} else {
 		log.Fatalf("Usage: %v [-e|-d] <key> <iv> <input>\n", args[0])

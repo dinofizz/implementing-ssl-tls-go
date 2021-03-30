@@ -252,7 +252,7 @@ func desBlockOperate(plaintext []byte, ciphertext []byte, key []byte, decrypt bo
 	permute(ciphertext, ipBlock[:], fpTable, DES_BLOCK_SIZE)
 }
 
-func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool) {
+func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool, triplicate bool) {
 	if len(input)%DES_BLOCK_SIZE != 0 {
 		log.Fatal("Input byte size needs to be a multiple of 8")
 	}
@@ -260,29 +260,48 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 	var inputBlock [DES_BLOCK_SIZE]byte
 
 	inputLen := len(input)
-	inputStart := 0
-	outputStart := 0
+	inputPos := 0
+	outputPos := 0
 	for inputLen != 0 {
-		copy(inputBlock[:], input[inputStart:(inputStart+DES_BLOCK_SIZE)])
+		copy(inputBlock[:], input[inputPos:(inputPos+DES_BLOCK_SIZE)])
 		if !decrypt {
 			xor(inputBlock[:], iv, DES_BLOCK_SIZE)
-			desBlockOperate(inputBlock[:], output[outputStart:(outputStart+DES_BLOCK_SIZE)], key, decrypt)
-			copy(iv, output[outputStart:(outputStart+DES_BLOCK_SIZE)])
+			desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key, decrypt)
+			if triplicate {
+				copy(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)])
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key[DES_KEY_SIZE:],
+					true)
+				copy(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)])
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key[DES_KEY_SIZE*2:],
+					decrypt)
+
+			}
+			copy(iv, output[outputPos:(outputPos+DES_BLOCK_SIZE)])
 		} else {
-			desBlockOperate(inputBlock[:], output[outputStart:(outputStart+DES_BLOCK_SIZE)], key, decrypt)
-			xor(output[outputStart:(outputStart+DES_BLOCK_SIZE)], iv, DES_BLOCK_SIZE)
-			copy(iv[:], input[inputStart:(inputStart+DES_BLOCK_SIZE)])
+			if triplicate {
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key[DES_KEY_SIZE*2:],
+					decrypt)
+				copy(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)])
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key[DES_KEY_SIZE:],
+					false)
+				copy(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)])
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key, decrypt)
+			} else {
+				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key, decrypt)
+			}
+			xor(output[outputPos:(outputPos+DES_BLOCK_SIZE)], iv, DES_BLOCK_SIZE)
+			copy(iv[:], input[inputPos:(inputPos+DES_BLOCK_SIZE)])
 		}
-		inputStart += DES_BLOCK_SIZE
-		outputStart += DES_BLOCK_SIZE
+		inputPos += DES_BLOCK_SIZE
+		outputPos += DES_BLOCK_SIZE
 		inputLen -= DES_BLOCK_SIZE
 	}
 }
 
-func DesDecrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte) {
-	desOperate(plaintext, ciphertext, iv, key, true)
+func DesDecrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte, triplicate bool) {
+	desOperate(plaintext, ciphertext, iv, key, true, triplicate)
 }
 
-func DesEncrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte) {
-	desOperate(plaintext, ciphertext, iv, key, false)
+func DesEncrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte, triplicate bool) {
+	desOperate(plaintext, ciphertext, iv, key, false, triplicate)
 }
