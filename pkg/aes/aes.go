@@ -246,7 +246,7 @@ func createSliceOfSlices(c, r int) [][]byte {
 	return s
 }
 
-func aesBlockEncrypt(inputBlock []byte, outputBlock []byte, outputIndex int, key []byte) {
+func aesBlockEncrypt(inputBlock []byte, outputBlock []byte, key []byte) {
 	state := createSliceOfSlices(4, 4)
 	w := createSliceOfSlices(60, 4)
 
@@ -273,18 +273,18 @@ func aesBlockEncrypt(inputBlock []byte, outputBlock []byte, outputIndex int, key
 
 	for r := 0; r < 4; r++ {
 		for c := 0; c < 4; c++ {
-			outputBlock[outputIndex+(r+(4*c))] = state[r][c]
+			outputBlock[r+(4*c)] = state[r][c]
 		}
 	}
 }
 
-func aesBlockDecrypt(inputBlock []byte, inputIndex int, outputBlock []byte, outputIndex int, key []byte) {
+func aesBlockDecrypt(inputBlock []byte, outputBlock []byte, key []byte) {
 	state := createSliceOfSlices(4, 4)
 	w := createSliceOfSlices(60, 4)
 
 	for r := 0; r < 4; r++ {
 		for c := 0; c < 4; c++ {
-			state[r][c] = inputBlock[inputIndex + (r+(4*c))]
+			state[r][c] = inputBlock[r+(4*c)]
 		}
 	}
 
@@ -305,7 +305,7 @@ func aesBlockDecrypt(inputBlock []byte, inputIndex int, outputBlock []byte, outp
 
 	for r := 0; r < 4; r++ {
 		for c := 0; c < 4; c++ {
-			outputBlock[outputIndex + (r+(4*c))] = state[r][c]
+			outputBlock[r+(4*c)] = state[r][c]
 		}
 	}
 }
@@ -321,7 +321,7 @@ func AesEncrypt(input, output, iv, key []byte) {
 	for ; inputLen >= AES_BLOCK_SIZE; {
 		copy(inputBlock, input[inputIndex:inputIndex+AES_BLOCK_SIZE])
 		common.Xor(inputBlock, iv, AES_BLOCK_SIZE)
-		aesBlockEncrypt(inputBlock, output, outputIndex, key)
+		aesBlockEncrypt(inputBlock, output[outputIndex:outputIndex+AES_BLOCK_SIZE], key)
 		copy(iv, output[outputIndex:outputIndex+AES_BLOCK_SIZE])
 		inputIndex += AES_BLOCK_SIZE
 		outputIndex += AES_BLOCK_SIZE
@@ -334,7 +334,7 @@ func AesDecrypt(input, output, iv, key []byte) {
 	inputIndex := 0
 	outputIndex := 0
 	for ; inputLen >= AES_BLOCK_SIZE; {
-		aesBlockDecrypt(input, inputIndex, output, outputIndex, key)
+		aesBlockDecrypt(input[inputIndex:inputIndex+AES_BLOCK_SIZE], output[outputIndex:outputIndex+AES_BLOCK_SIZE], key)
 		common.Xor(output[outputIndex:outputIndex+AES_BLOCK_SIZE], iv, AES_BLOCK_SIZE)
 		copy(iv, input[inputIndex:inputIndex+AES_BLOCK_SIZE])
 		inputIndex += AES_BLOCK_SIZE
