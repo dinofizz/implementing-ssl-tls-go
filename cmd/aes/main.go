@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/dinofizz/impl-tsl-go/pkg/aes"
 	"github.com/dinofizz/impl-tsl-go/pkg/common"
-	"github.com/dinofizz/impl-tsl-go/pkg/des"
 	"log"
 	"os"
 )
@@ -24,18 +24,21 @@ func main() {
 	iv = common.Decode(iv)
 	input = common.Decode(input)
 
-	output := make([]byte, len(input))
+	w := make([][]byte, 60,60)
 
-	triplicate := false
-	if len(key) == 24 {
-		triplicate = true
+	for i := 0; i < 60; i++ {
+		v := make([]byte, 4, 4)
+		w[i] = v
 	}
 
+	output := make([]byte, len(input))
+
+	aes.ComputeKeySchedule(key, w)
 	if args[1] == "-e" {
-		des.DesEncrypt(input, output, iv, key, triplicate)
+		aes.AesEncrypt(input, output, iv, key)
 		fmt.Println(common.HexDisplay(output))
 	} else if args[1] == "-d" {
-		des.DesDecrypt(input, output, iv, key, triplicate)
+		aes.AesDecrypt(input, output, iv, key)
 		fmt.Println(common.HexDisplay(output))
 	} else {
 		log.Fatalf("Usage: %v [-e|-d] <key> <iv> <input>\n", args[0])

@@ -2,6 +2,8 @@ package des
 
 import (
 	"log"
+
+	"github.com/dinofizz/impl-tsl-go/pkg/common"
 )
 
 const DES_BLOCK_SIZE = 8
@@ -107,38 +109,14 @@ var pTable = []int{
 	19, 13, 30, 6, 22, 11, 4, 25,
 }
 
-// Does not return a 1 for a 1 bit, it just returns non-zero
-func getBit(array []byte, bit int) uint8 {
-	location := bit / 8
-	return uint8(array[location] & (0x80 >> (bit % 8)))
-}
 
-func setBit(array []byte, bit int) {
-	location := bit / 8
-	array[location] = array[location] | (0x80 >> (bit % 8))
-}
-
-func clearBit(array []byte, bit int) {
-	location := bit / 8
-	array[location] = array[location] & ^(0x80 >> (bit % 8))
-}
-
-func xor(target []byte, src []byte, length int) {
-	for i := 0; i < length; i++ {
-		target[i] = target[i] ^ src[i]
-	}
-}
-
-func invertByte(b byte) byte {
-	return 0xFF ^ b
-}
 
 func permute(target []byte, src []byte, permuteTable []int, length int) {
 	for i := 0; i < length*8; i++ {
-		if getBit(src, permuteTable[i]-1) != 0 {
-			setBit(target, i)
+		if common.GetBit(src, permuteTable[i]-1) != 0 {
+			common.SetBit(target, i)
 		} else {
-			clearBit(target, i)
+			common.ClearBit(target, i)
 		}
 	}
 }
@@ -167,7 +145,7 @@ func ror(target []byte) {
 
 	carryLeft := (target[3] & 0x10) << 3
 	target[3] = ((target[3]>>1)|
-		((target[2]&0x01)<<7))&invertByte(0x08) | carryRight
+		((target[2]&0x01)<<7))&common.InvertByte(0x08) | carryRight
 
 	target[2] = (target[2] >> 1) | ((target[1] & 0x01) << 7)
 	target[1] = (target[1] >> 1) | ((target[0] & 0x01) << 7)
@@ -218,7 +196,7 @@ func desBlockOperate(plaintext []byte, ciphertext []byte, key []byte, decrypt bo
 			}
 		}
 
-		xor(expansionBlock[:], subKey[:], SUBKEY_SIZE)
+		common.Xor(expansionBlock[:], subKey[:], SUBKEY_SIZE)
 		memSet(substitutionBlock[:], 0)
 
 		substitutionBlock[0] = byte(sbox[0][int(expansionBlock[0]&0xFC>>2)] << 4)
@@ -241,7 +219,7 @@ func desBlockOperate(plaintext []byte, ciphertext []byte, key []byte, decrypt bo
 
 		copy(recombBox[:], ipBlock[:DES_BLOCK_SIZE/2])
 		copy(ipBlock[:], ipBlock[4:])
-		xor(recombBox[:], pboxTarget[:], DES_BLOCK_SIZE/2)
+		common.Xor(recombBox[:], pboxTarget[:], DES_BLOCK_SIZE/2)
 		copy(ipBlock[4:], recombBox[:])
 	}
 
@@ -265,7 +243,7 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 	for inputLen != 0 {
 		copy(inputBlock[:], input[inputPos:(inputPos+DES_BLOCK_SIZE)])
 		if !decrypt {
-			xor(inputBlock[:], iv, DES_BLOCK_SIZE)
+			common.Xor(inputBlock[:], iv, DES_BLOCK_SIZE)
 			desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key, decrypt)
 			if triplicate {
 				copy(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)])
@@ -289,7 +267,7 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 			} else {
 				desBlockOperate(inputBlock[:], output[outputPos:(outputPos+DES_BLOCK_SIZE)], key, decrypt)
 			}
-			xor(output[outputPos:(outputPos+DES_BLOCK_SIZE)], iv, DES_BLOCK_SIZE)
+			common.Xor(output[outputPos:(outputPos+DES_BLOCK_SIZE)], iv, DES_BLOCK_SIZE)
 			copy(iv[:], input[inputPos:(inputPos+DES_BLOCK_SIZE)])
 		}
 		inputPos += DES_BLOCK_SIZE

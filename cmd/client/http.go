@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	implssl "implssl"
+	"github.com/dinofizz/impl-tsl-go/pkg/common"
 	"io"
 	"net"
 	"os"
@@ -176,7 +176,7 @@ func httpGet(tcpConn *net.TCPConn, path, host string, proxyParams *ProxyParams) 
 	if proxyParams != nil && proxyParams.username != "" {
 		plaintextCredentials := fmt.Sprintf("%s:%s", proxyParams.username, proxyParams.host)
 		inBuf := []byte(plaintextCredentials)
-		outBuf := implssl.Base64Encode(&inBuf)
+		outBuf := common.Base64Encode(&inBuf)
 		getCommand = fmt.Sprintf("Proxy-Authorization: BASIC %s\r\n", string(*outBuf))
 		_, err = tcpConn.Write([]byte(getCommand))
 		if err != nil {

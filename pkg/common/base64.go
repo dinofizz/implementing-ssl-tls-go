@@ -1,4 +1,4 @@
-package tlsimpl
+package common
 
 import (
 	"errors"

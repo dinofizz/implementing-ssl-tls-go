@@ -1,4 +1,4 @@
-package hex
+package common
 
 import (
 	"fmt"
