@@ -15,12 +15,20 @@ func main() {
 		log.Fatalf("Usage: %v [-e|-d] <key> <iv> <input>\n", args[0])
 	}
 
+	iv := make([]byte, 16,16)
 
 	key := []byte(args[2])
-	iv := []byte(args[3])
+	ivBytes := []byte(args[3])
+	copy(iv, ivBytes)
 	input := []byte(args[4])
 
 	key = common.Decode(key)
+	keyLen := len(key)
+
+	if keyLen != 16 && keyLen != 32 {
+		log.Fatalf("Unsupported key length: %d", keyLen)
+	}
+
 	iv = common.Decode(iv)
 	input = common.Decode(input)
 
