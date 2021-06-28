@@ -35,8 +35,7 @@ func Test_encrypt(t *testing.T) {
 
 	for _, tt := range destests {
 		t.Run(tt.name, func(t *testing.T) {
-			output := make([]byte, len(tt.input))
-			DesEncrypt(tt.input, output, tt.iv, tt.key, tt.triplicate)
+			output := Encrypt(tt.input, tt.iv, tt.key, tt.triplicate)
 			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}
@@ -71,8 +70,7 @@ func Test_decrypt(t *testing.T) {
 
 	for _, tt := range destests {
 		t.Run(tt.name, func(t *testing.T) {
-			output := make([]byte, len(tt.input))
-			DesDecrypt(tt.input, output, tt.iv, tt.key, tt.triplicate)
+			output := Decrypt(tt.input, tt.iv, tt.key, tt.triplicate)
 			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}

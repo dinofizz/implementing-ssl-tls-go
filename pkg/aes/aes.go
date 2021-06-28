@@ -312,8 +312,9 @@ func aesBlockDecrypt(inputBlock []byte, outputBlock []byte, key []byte) {
 
 const AES_BLOCK_SIZE = 16
 
-func AesEncrypt(input, output, iv, key []byte) {
+func Encrypt(input, iv, key []byte) []byte {
 	inputBlock := make([]byte, AES_BLOCK_SIZE, AES_BLOCK_SIZE)
+	output := make([]byte, len(input), len(input))
 
 	inputLen := len(input)
 	inputIndex := 0
@@ -327,10 +328,12 @@ func AesEncrypt(input, output, iv, key []byte) {
 		outputIndex += AES_BLOCK_SIZE
 		inputLen -= AES_BLOCK_SIZE
 	}
+	return output
 }
 
-func AesDecrypt(input, output, iv, key []byte) {
+func Decrypt(input, iv, key []byte) []byte {
 	inputLen := len(input)
+	output := make([]byte, len(input), len(input))
 	inputIndex := 0
 	outputIndex := 0
 	for ; inputLen >= AES_BLOCK_SIZE; {
@@ -341,4 +344,5 @@ func AesDecrypt(input, output, iv, key []byte) {
 		outputIndex += AES_BLOCK_SIZE
 		inputLen -= AES_BLOCK_SIZE
 	}
+	return output
 }

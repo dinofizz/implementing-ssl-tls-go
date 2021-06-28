@@ -1,4 +1,4 @@
-package aes
+package rc4
 
 import (
 	"github.com/dinofizz/impl-tsl-go/pkg/common"
@@ -10,22 +10,21 @@ func Test_encrypt(t *testing.T) {
 	var aestests = []struct {
 		name           string
 		input          []byte
-		iv             []byte
 		key            []byte
 		expectedOutput []byte
 	}{
 		{
-			"aes encrypt",
+			"rc4 encrypt",
 			[]byte("abcdefghijklmnopqrstuvqxyz1234567890ABCDEFGHJIKL"),
-			[]byte("initialzINITIALZ"),
 			[]byte("passwordPASSWORD"),
-			common.Decode([]byte("0xbe24b7b8b38849fbe1fb621f7e390a6e32a465ea0a658c2cfc914e28d0b81b48462e2ce2e1f7ad88fe28cd8cb798c838")),
+			common.Decode([]byte("0x861eb964f550d95c6961cb2978d0263e728baf8ee05d2d5a7feb587c897c18ca384cc72db9d9a9c7e6364ec6a95dbe62")),
 		},
 	}
 
 	for _, tt := range aestests {
 		t.Run(tt.name, func(t *testing.T) {
-			output := Encrypt(tt.input, tt.iv, tt.key)
+			state := Initialize()
+			output := Operate(tt.input, tt.key, state)
 			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}
@@ -35,15 +34,13 @@ func Test_decrypt(t *testing.T) {
 	var aestests = []struct {
 		name           string
 		input          []byte
-		iv             []byte
 		key            []byte
 		expectedOutput []byte
 		triplicate     bool
 	}{
 		{
 			"aes decrypt",
-			common.Decode([]byte("0xbe24b7b8b38849fbe1fb621f7e390a6e32a465ea0a658c2cfc914e28d0b81b48462e2ce2e1f7ad88fe28cd8cb798c838")),
-			[]byte("initialzINITIALZ"),
+			common.Decode([]byte("0x861eb964f550d95c6961cb2978d0263e728baf8ee05d2d5a7feb587c897c18ca384cc72db9d9a9c7e6364ec6a95dbe62")),
 			[]byte("passwordPASSWORD"),
 			common.Decode([]byte("abcdefghijklmnopqrstuvqxyz1234567890ABCDEFGHJIKL")),
 			false,
@@ -52,7 +49,8 @@ func Test_decrypt(t *testing.T) {
 
 	for _, tt := range aestests {
 		t.Run(tt.name, func(t *testing.T) {
-			output := Decrypt(tt.input, tt.iv, tt.key)
+			state := Initialize()
+			output := Operate(tt.input, tt.key, state)
 			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}

@@ -230,12 +230,14 @@ func desBlockOperate(plaintext []byte, ciphertext []byte, key []byte, decrypt bo
 	permute(ciphertext, ipBlock[:], fpTable, DES_BLOCK_SIZE)
 }
 
-func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool, triplicate bool) {
+func desOperate(input []byte, iv []byte, key []byte, decrypt bool, triplicate bool) []byte {
 	if len(input)%DES_BLOCK_SIZE != 0 {
 		log.Fatal("Input byte size needs to be a multiple of 8")
 	}
 
 	var inputBlock [DES_BLOCK_SIZE]byte
+
+	output := make([]byte, len(input), len(input))
 
 	inputLen := len(input)
 	inputPos := 0
@@ -274,12 +276,14 @@ func desOperate(input []byte, output []byte, iv []byte, key []byte, decrypt bool
 		outputPos += DES_BLOCK_SIZE
 		inputLen -= DES_BLOCK_SIZE
 	}
+
+	return output
 }
 
-func DesDecrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte, triplicate bool) {
-	desOperate(plaintext, ciphertext, iv, key, true, triplicate)
+func Decrypt(plaintext, iv, key []byte, triplicate bool) []byte {
+	return desOperate(plaintext, iv, key, true, triplicate)
 }
 
-func DesEncrypt(plaintext []byte, ciphertext []byte, iv []byte, key []byte, triplicate bool) {
-	desOperate(plaintext, ciphertext, iv, key, false, triplicate)
+func Encrypt(plaintext, iv, key []byte, triplicate bool) []byte {
+	return desOperate(plaintext, iv, key, false, triplicate)
 }

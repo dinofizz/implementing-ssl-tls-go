@@ -39,14 +39,12 @@ func main() {
 		w[i] = v
 	}
 
-	output := make([]byte, len(input))
-
 	aes.ComputeKeySchedule(key, w)
 	if args[1] == "-e" {
-		aes.AesEncrypt(input, output, iv, key)
+		output := aes.Encrypt(input, iv, key)
 		fmt.Println(common.HexDisplay(output))
 	} else if args[1] == "-d" {
-		aes.AesDecrypt(input, output, iv, key)
+		output :=aes.Decrypt(input, iv, key)
 		fmt.Println(common.HexDisplay(output))
 	} else {
 		log.Fatalf("Usage: %v [-e|-d] <key> <iv> <input>\n", args[0])
