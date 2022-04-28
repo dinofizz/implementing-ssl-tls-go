@@ -101,9 +101,7 @@ func main() {
 }
 
 func parseProxyParams(proxySpec string) (*ProxyParams, error) {
-	if strings.HasPrefix(proxySpec, "http://") {
-		proxySpec = proxySpec[7:]
-	}
+	proxySpec = strings.TrimPrefix(proxySpec, "http://")
 
 	var proxyParams ProxyParams
 

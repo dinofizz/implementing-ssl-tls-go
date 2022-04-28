@@ -19,6 +19,10 @@ func main() {
 	}
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", args[1])
+	if err != nil {
+		fmt.Printf("Error resolving TCP addrress: %s\n", err)
+		os.Exit(0)
+	}
 	l, err := net.ListenTCP("tcp", tcpAddr)
 	if err != nil {
 		fmt.Printf("Error creating TCP listener: %s\n", err)
@@ -41,7 +45,7 @@ func main() {
 func handleTCPConnection(tcpConn *net.TCPConn) {
 	defer tcpConn.Close()
 	requestLine := readLine(tcpConn)
-	if strings.HasPrefix(requestLine, "GET") == false {
+	if !strings.HasPrefix(requestLine, "GET") {
 		buildErrorResponse(tcpConn, http.StatusNotImplemented)
 	}
 
@@ -54,10 +58,10 @@ func handleTCPConnection(tcpConn *net.TCPConn) {
 func buildSuccessResponse(tcpConn *net.TCPConn) {
 	var responseBuf bytes.Buffer
 
-	responseBuf.WriteString(fmt.Sprint("HTTP/1.1 200 Success\r\n"))
-	responseBuf.WriteString(fmt.Sprint("Connection: Close\r\n"))
-	responseBuf.WriteString(fmt.Sprint("Content-Type: text/html\r\n\r\n"))
-	responseBuf.WriteString(fmt.Sprint("<html><head><title>Test Page</title></head><body>Nothing here</body></html>\r\n"))
+	responseBuf.WriteString("HTTP/1.1 200 Success\r\n")
+	responseBuf.WriteString("Connection: Close\r\n")
+	responseBuf.WriteString("Content-Type: text/html\r\n\r\n")
+	responseBuf.WriteString("<html><head><title>Test Page</title></head><body>Nothing here</body></html>\r\n")
 
 	_, err := tcpConn.Write(responseBuf.Bytes())
 	if err != nil {

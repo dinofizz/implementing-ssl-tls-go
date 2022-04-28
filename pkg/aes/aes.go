@@ -3,8 +3,7 @@ package aes
 import "github.com/dinofizz/impl-tsl-go/pkg/common"
 
 func rotWord(w []byte) {
-	var tmp byte
-	tmp = w[0]
+	tmp := w[0]
 	w[0] = w[1]
 	w[1] = w[2]
 	w[2] = w[3]
